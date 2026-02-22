@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen de Mathématiques - Équations du 1er degré</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <style>
+        body { font-family: 'Garamond', serif; background-color: #f3f4f6; color: #111827; }
+        .exam-paper { max-width: 900px; margin: 2rem auto; background: white; padding: 3rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        @media print {
+            body { background: white; }
+            .exam-paper { margin: 0; padding: 0; box-shadow: none; max-width: 100%; }
+            .no-print { display: none !important; }
+            textarea { height: auto !important; min-height: 50px; }
+            .page-break { page-break-before: always; }
+        }
+        .modal-content { max-height: 75vh; overflow-y: auto; }
+        #loading-overlay { backdrop-filter: blur(4px); }
+        .spinner { border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 4px solid white; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="exam-paper" id="exam-app">
+    <div class="border-b-4 border-gray-800 pb-4 mb-8 text-center">
+        <h1 class="text-3xl font-bold uppercase tracking-widest mb-2">Examen de Mathématiques</h1>
+        <h2 class="text-xl italic text-gray-700">Domaine C – C2 : Résolution d'équations du 1er degré (8e année)</h2>
+        <div class="flex justify-between mt-6 text-lg text-left">
+            <div><span class="font-bold">Nom de l'élève :</span> _______________________</div>
+            <div><span class="font-bold">Date :</span> _______________________</div>
+        </div>
+    </div>
+
+    <div id="exam-body">
+        <h3 class="text-2xl font-bold mb-4 bg-gray-200 p-2 rounded">Exercice 1 : Équations simples</h3>
+        <p class="mb-4 italic">Montre toutes tes étapes dans l'encadré et inscris ta réponse finale.</p>
+        <div id="ex1-container" class="grid grid-cols-1 gap-6 mb-8"></div>
+
+        <h3 class="text-2xl font-bold mb-4 bg-gray-200 p-2 rounded page-break">Exercice 2 : Équations complexes</h3>
+        <p class="mb-4 italic">Montre toutes tes étapes de résolution (variables des deux côtés).</p>
+        <div id="ex2-container" class="grid grid-cols-1 gap-6 mb-8"></div>
+
+        <h3 class="text-2xl font-bold mb-4 bg-gray-200 p-2 rounded page-break">Problème 1 : Application géométrique</h3>
+        <div id="prob1-container" class="mb-8"></div>
+
+        <h3 class="text-2xl font-bold mb-4 bg-gray-200 p-2 rounded page-break">Problème 2 : Situation de la vie réelle</h3>
+        <div id="prob2-container" class="mb-8"></div>
+    </div>
+
+    <div class="flex justify-center gap-4 mt-8 no-print pt-6 border-t-2 border-gray-300">
+        <button onclick="generateExam()" class="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 font-bold">Nouvel examen</button>
+        <button onclick="window.print()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold">Imprimer</button>
+        <button onclick="submitExam()" class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-bold text-lg">Soumettre → Note & Révision IA</button>
+    </div>
+</div>
+
+<div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 hidden z-50 flex flex-col justify-center items-center no-print">
+    <div class="spinner mb-4"></div>
+    <p class="text-white text-xl font-bold">Le professeur IA corrige ta copie...</p>
+    <p class="text-gray-300 mt-2 italic">Analyse du raisonnement en cours...</p>
+</div>
+
+<div id="review-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex justify-center items-center no-print p-4">
+    <div class="bg-white w-full max-w-4xl rounded-lg shadow-2xl overflow-hidden flex flex-col">
+        <div class="bg-gray-800 text-white p-4 flex justify-between items-center">
+            <h2 class="text-2xl font-bold">Résultats & Révision IA</h2>
+            <button onclick="closeModal()" class="text-white hover:text-red-400 font-bold text-xl">&times; Fermer</button>
+        </div>
+        <div class="p-6 bg-blue-50 border-b border-gray-200 text-center">
+            <p class="text-lg">Note finale accordée par l'IA :</p>
+            <p id="final-score" class="text-5xl font-bold text-blue-700 mb-2">0/100</p>
+            <p id="global-feedback" class="italic text-gray-800 text-lg"></p>
+        </div>
+        <div id="review-content" class="p-6 modal-content space-y-6"></div>
+        <div class="p-4 bg-gray-100 border-t border-gray-200 text-right">
+            <button onclick="closeModal()" class="px-6 py-2 bg-gray-800 text-white rounded font-bold hover:bg-gray-900">Fermer la révision</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- BANQUES DE DONNÉES ---
+const geoProblems = [
+  {id:1, img:127, title:"Périmètre du champ", text:"Un champ rectangulaire a une largeur de x mètres. Sa longueur mesure 5 mètres de plus, soit (x + 5). Si le périmètre total est de 42 mètres, quelle est la valeur de x ?", ans:8, ctx:"la largeur en mètres"},
+  {id:2, img:128, title:"Triangle de signalisation", text:"Un panneau triangulaire isocèle a deux côtés égaux mesurant chacun 2x cm. La base mesure 10 cm. Le périmètre total du panneau est de 34 cm. Trouve la valeur de x.", ans:6, ctx:"la valeur de x en cm"},
+  {id:3, img:129, title:"Angles d'un vitrail", text:"Dans un vitrail, deux angles adjacents sont complémentaires (somme = 90°). Le premier mesure 3x et le deuxième (x + 10). Quelle est la valeur de x ?", ans:20, ctx:"la valeur de x en degrés"},
+  {id:4, img:130, title:"Charpente de toit", text:"Deux angles d'une charpente sont supplémentaires (somme = 180°). L'un mesure 2x et l'autre (3x - 20). Trouve la valeur de x.", ans:40, ctx:"la valeur de x en degrés"},
+  {id:5, img:131, title:"Parc carré", text:"Un parc a la forme d'un carré dont chaque côté s'exprime par (3x - 2) mètres. Si le périmètre total est de 40 mètres, que vaut x ?", ans:4, ctx:"la valeur de x en mètres"}
+];
+
+const realProblems = [
+  {id:1, img:101, title:"Thermomètre à criquets", text:"Au parc Algonquin, en multipliant la température par 7 et en soustrayant 30, on obtient le nombre de cris de criquets par minute. Un campeur entend 110 cris. Quelle est la température ?", ans:20, ctx:"température en degrés"},
+  {id:2, img:102, title:"Startup de baskets", text:"Une startup de Toronto paie 500$ pour l'équipement de base, puis chaque paire coûte 20$ à fabriquer. Le premier mois, la facture est de 1300$. Combien de paires ont été fabriquées ?", ans:40, ctx:"nombre de paires"},
+  {id:3, img:103, title:"Plongeur sous-marin", text:"En Colombie-Britannique, la pression de l'eau augmente de 10 kPa par mètre, en plus de la surface (100 kPa). Un plongeur ressent 350 kPa. À quelle profondeur est-il ?", ans:25, ctx:"profondeur en mètres"},
+  {id:4, img:104, title:"Reforestation", text:"Des jeunes en Ontario commencent avec 50 arbres déjà en terre, et plantent 15 arbres par heure. Le compteur affiche 200 arbres. Combien d'heures ont-ils travaillé ?", ans:10, ctx:"nombre d'heures"},
+  {id:5, img:106, title:"Dosage pédiatrique", text:"À Ottawa, une dose : 5 mg par kg de l'enfant, plus une base de 10 mg. Si la dose préparée est de 135 mg, quelle est la masse de l'enfant ?", ans:25, ctx:"masse en kg"},
+  {id:6, img:107, title:"Véhicule Électrique", text:"Un VÉ part de Hamilton à 100%. Il perd 2% par kilomètre. En arrivant, il lui reste 40%. Combien de kilomètres a-t-il parcourus ?", ans:30, ctx:"distance en km"},
+  {id:7, img:108, title:"Croissance de bactéries", text:"Un échantillon contient 500 bactéries. La population augmente de 50 par heure. On compte 900 bactéries. Combien d'heures se sont écoulées ?", ans:8, ctx:"temps en heures"},
+  {id:8, img:109, title:"Effet de serre", text:"Une station mesure 400 ppm de CO2 au départ. Ce niveau augmente de 2.5 ppm par an. Un jour on lit 425 ppm. Combien d'années ont passé ?", ans:10, ctx:"nombre d'années"},
+  {id:9, img:110, title:"Bureau de change", text:"Frais fixe de 5$, plus 1.35$ CAD par USD acheté. Un client paie 140$ CAD. Combien de USD a-t-il reçus ?", ans:100, ctx:"montant en USD"},
+  {id:10, img:111, title:"Batterie de téléphone", text:"Un téléphone part à 100% et perd 5% par heure. Il reste 15%. Pendant combien d'heures le téléphone a-t-il été utilisé ?", ans:17, ctx:"temps d'utilisation en heures"},
+  {id:11, img:112, title:"La ferme bio", text:"Une ferme vend des paniers à 25$, moins 100$ pour le transport. Le profit est de 400$. Combien de paniers vendus ?", ans:20, ctx:"nombre de paniers"},
+  {id:12, img:113, title:"Cabane à sucre", text:"Une réserve de 200 litres. On ajoute 15 litres par seau. Total : 500 litres. Combien de seaux ?", ans:20, ctx:"nombre de seaux"},
+  {id:13, img:114, title:"Visite Tour CN", text:"Frais de guide 20$, plus 40$ par personne. Facture 340$. Combien de personnes ?", ans:8, ctx:"nombre de personnes"},
+  {id:14, img:115, title:"Match de Hockey", text:"Équipement 300$, plus 15$ par rondelle. Total 450$. Combien de rondelles ?", ans:10, ctx:"nombre de rondelles"},
+  {id:15, img:116, title:"Train VIA Rail", text:"Frais 25$, plus 0.15$ par km. Facture 85$. Quelle distance ?", ans:400, ctx:"distance en km"},
+  {id:16, img:117, title:"Poutine Food Truck", text:"Prix 9$, location emplacement 45$. Profit 180$. Combien de poutines ?", ans:25, ctx:"nombre de poutines"},
+  {id:17, img:118, title:"Pêche sur glace", text:"Permis 15$, location cabane 8$ par heure. Total 71$. Combien d'heures ?", ans:7, ctx:"nombre d'heures"},
+  {id:18, img:119, title:"Cueillette de pommes", text:"Entrée verger 5$, plus 2$ par kilo. Total 25$. Combien de kilos ?", ans:10, ctx:"kilos de pommes"},
+  {id:19, img:120, title:"Hydro-Québec/Ontario", text:"Frais réseau 30$, plus 0.10$ par kWh. Facture 80$. Combien de kWh ?", ans:500, ctx:"consommation en kWh"},
+  {id:20, img:121, title:"Forfait cellulaire", text:"Base 45$, 10$ par Go extra. Facture 85$. Combien de Go extra ?", ans:4, ctx:"Go supplémentaires"},
+  {id:21, img:122, title:"Parc d'attractions", text:"Entrée 50$, 3$ par jeu. Dépense 86$. Combien de jeux ?", ans:12, ctx:"nombre de jeux"},
+  {id:22, img:123, title:"Plombier d'urgence", text:"Déplacement 60$, 50$ par heure. Total 210$. Combien d'heures ?", ans:3, ctx:"nombre d'heures"},
+  {id:23, img:124, title:"Économies d'été", text:"Base 120$, plus 15$ par semaine. Total 300$. Combien de semaines ?", ans:12, ctx:"nombre de semaines"},
+  {id:24, img:125, title:"Déneigement", text:"Contrat base 150$, plus 20$ par tempête. Total 350$. Combien de tempêtes ?", ans:10, ctx:"nombre de tempêtes"},
+  {id:25, img:126, title:"Canot-camping", text:"Location 40$, plus 25$ par jour. Total 190$. Combien de jours ?", ans:6, ctx:"nombre de jours"}
+];
+
+let currentExamData = { ex1: [], ex2: [], prob1: null, prob2: null };
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function generateExam() {
+    currentExamData = { ex1: [], ex2: [], prob1: null, prob2: null };
+    
+    // Ex 1
+    let htmlEx1 = "";
+    for(let i=1; i<=5; i++) {
+        const a = rand(2, 9), x = rand(2, 12), b = rand(1, 20);
+        const eq = { id: `ex1_${i}`, text: `${a}x + ${b} = ${a*x + b}`, ans: x };
+        currentExamData.ex1.push(eq);
+        htmlEx1 += buildEqBlock(eq, i, 'ex1');
+    }
+    document.getElementById('ex1-container').innerHTML = htmlEx1;
+
+    // Ex 2
+    let htmlEx2 = "";
+    for(let i=1; i<=5; i++) {
+        const x = rand(2, 10), a = rand(4, 9), c = rand(1, a-1), b = rand(1, 15);
+        const d = (a * x + b) - (c * x);
+        const eq = { id: `ex2_${i}`, text: `${a}x + ${b} = ${c}x + ${d}`, ans: x };
+        currentExamData.ex2.push(eq);
+        htmlEx2 += buildEqBlock(eq, i, 'ex2');
+    }
+    document.getElementById('ex2-container').innerHTML = htmlEx2;
+
+    // Problèmes
+    const p1 = geoProblems[rand(0, geoProblems.length-1)];
+    p1.id = "p1"; currentExamData.prob1 = p1;
+    document.getElementById('prob1-container').innerHTML = buildProblemBlock(p1);
+
+    const p2 = realProblems[rand(0, realProblems.length-1)];
+    p2.id = "p2"; currentExamData.prob2 = p2;
+    document.getElementById('prob2-container').innerHTML = buildProblemBlock(p2);
+    
+    document.documentElement.scrollTop = 0;
+}
+
+function buildEqBlock(eq, index, prefix) {
+    return `
+    <div class="mb-4 p-4 border border-gray-300 rounded bg-white shadow-sm">
+        <p class="font-bold text-lg mb-2">${index}. Résous : ${eq.text}</p>
+        <textarea id="${eq.id}_step" class="w-full h-16 border border-gray-300 p-2 mb-3 rounded" placeholder="Montre tes opérations..."></textarea>
+        <div class="flex items-center justify-end">
+            <span class="mr-3 font-bold italic text-xl">x = </span>
+            <input type="number" id="${eq.id}_ans" class="border-b-2 border-gray-800 w-24 p-1 text-center text-lg outline-none" />
+        </div>
+    </div>`;
+}
+
+function buildProblemBlock(prob) {
+    return `
+    <div class="p-6 border-2 border-gray-800 rounded bg-white shadow-sm">
+        <h4 class="text-xl font-bold mb-4 text-blue-900">${prob.title}</h4>
+        <img src="[https://picsum.photos/id/$](https://picsum.photos/id/$){prob.img}/800/220" class="w-full h-48 object-cover rounded mb-4" alt="Illustration" />
+        <p class="text-lg mb-6">${prob.text}</p>
+        <div class="space-y-4">
+            <div><p class="font-bold">1. Définis la variable.</p><textarea id="${prob.id}_q1" class="w-full border p-2"></textarea></div>
+            <div><p class="font-bold">2. Modélise l'équation.</p><textarea id="${prob.id}_q2" class="w-full border p-2"></textarea></div>
+            <div><p class="font-bold">3. Résous (montre les étapes).</p><textarea id="${prob.id}_q3" class="w-full h-24 border p-2"></textarea></div>
+            <div><p class="font-bold">4. Vérification.</p><textarea id="${prob.id}_q4" class="w-full border p-2"></textarea></div>
+            <div><p class="font-bold">5. Conclusion (réponse = ...).</p>
+                <div class="flex gap-2 mt-1">
+                    <textarea id="${prob.id}_q5" class="flex-grow border p-2"></textarea>
+                    <input type="number" id="${prob.id}_ans" placeholder="Rép. finale" class="border w-28 text-center" />
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+async function submitExam() {
+    document.getElementById('loading-overlay').classList.remove('hidden');
+
+    // Collecte des données pour l'IA
+    const payload = {
+        exercices: [...currentExamData.ex1, ...currentExamData.ex2].map(eq => ({
+            id: eq.id,
+            question: eq.text,
+            expectedAns: eq.ans,
+            studentSteps: document.getElementById(`${eq.id}_step`).value,
+            studentAns: document.getElementById(`${eq.id}_ans`).value
+        })),
+        problemes: [currentExamData.prob1, currentExamData.prob2].map(p => ({
+            id: p.id,
+            context: p.text,
+            expectedAns: p.ans,
+            studentQ1_Variable: document.getElementById(`${p.id}_q1`).value,
+            studentQ2_Equation: document.getElementById(`${p.id}_q2`).value,
+            studentQ3_Steps: document.getElementById(`${p.id}_q3`).value,
+            studentQ4_Verification: document.getElementById(`${p.id}_q4`).value,
+            studentQ5_Conclusion: document.getElementById(`${p.id}_q5`).value,
+            studentFinalNum: document.getElementById(`${p.id}_ans`).value
+        }))
+    };
+
+    try {
+        // Change this:
+        // const response = await fetch('http://localhost:3000/api/grade', ...
+            
+        // To this:
+        const response = await fetch('/api/grade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("Erreur serveur");
+        
+        const result = await response.json();
+        afficherResultats(result);
+    } catch (err) {
+        alert("Erreur de connexion avec l'IA. Assure-toi que le serveur Node.js est lancé.");
+        document.getElementById('loading-overlay').classList.add('hidden');
+    }
+}
+
+function afficherResultats(data) {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('final-score').innerText = `${data.totalScore}/100`;
+    document.getElementById('global-feedback').innerText = data.globalFeedback;
+    
+    let html = "";
+    data.questionsGrading.forEach(q => {
+        let color = q.score === q.maxScore ? 'bg-green-50 border-green-300' : (q.score > 0 ? 'bg-yellow-50 border-yellow-300' : 'bg-red-50 border-red-300');
+        html += `
+        <div class="p-4 border rounded ${color}">
+            <p class="font-bold text-lg mb-1">Question ID: ${q.id} <span class="float-right">${q.score} / ${q.maxScore} pts</span></p>
+            <p class="text-gray-800">${q.feedback}</p>
+        </div>`;
+    });
+    
+    document.getElementById('review-content').innerHTML = html;
+    document.getElementById('review-modal').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('review-modal').classList.add('hidden'); }
+
+window.onload = generateExam;
+</script>
+</body>
+</html>
