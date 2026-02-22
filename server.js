@@ -73,5 +73,5 @@ L'objet doit avoir cette structure exacte :
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(\`Serveur démarré sur http://localhost:\${PORT}\`);
+    console.log(\`Serveur démarré sur http://localhost:\${PORT}`);
 });
