@@ -16,7 +16,7 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.static(__dirname));
 
 // 🔴 INSÈRE TA CLÉ API GEMINI ICI 🔴
-const API_KEY = "AIzaSyBfzI_xcVrGi9Yr8cgJzul28QBng-cc3O8";
+const API_KEY = process.env.API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 app.post('/api/grade', async (req, res) => {
