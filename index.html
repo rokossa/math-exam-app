@@ -31,9 +31,16 @@
     <div class="border-b-4 border-gray-800 pb-6 mb-10 text-center">
         <h1 class="text-4xl font-bold uppercase tracking-widest mb-3 text-gray-900">Examen de Mathématiques</h1>
         <h2 class="text-2xl italic text-gray-600">Domaine C – C2 : Résolution d'équations du 1er degré</h2>
-        <div class="flex justify-between mt-8 text-xl text-left">
-            <div><span class="font-bold">Nom :</span> <span class="border-b-2 border-gray-400 inline-block w-64"></span></div>
-            <div><span class="font-bold">Date :</span> <span class="border-b-2 border-gray-400 inline-block w-40"></span></div>
+        
+        <div class="flex flex-col md:flex-row justify-between mt-8 text-xl text-left gap-4">
+            <div class="flex items-center">
+                <label for="student-name" class="font-bold mr-2 text-gray-800">Prénom :</label>
+                <input type="text" id="student-name" class="border-b-2 border-blue-500 bg-transparent focus:outline-none focus:border-blue-700 text-2xl text-blue-900 w-64 px-2 py-1 placeholder-gray-400 transition-colors" placeholder="ex: Alexandre" autocomplete="given-name">
+            </div>
+            <div class="flex items-center">
+                <span class="font-bold mr-2">Date :</span>
+                <span class="border-b-2 border-gray-400 inline-block w-40"></span>
+            </div>
         </div>
     </div>
 
@@ -68,12 +75,10 @@
 
 <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex justify-center items-center no-print p-4 md:p-6">
     <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl flex flex-col max-h-[95vh] overflow-hidden">
-        
         <div class="bg-gray-900 text-white p-4 md:p-5 flex justify-between items-center shrink-0">
             <h2 class="text-2xl md:text-3xl font-bold">Résultats & Révision</h2>
             <button onclick="closeModal()" class="text-gray-300 hover:text-white font-bold text-4xl leading-none">&times;</button>
         </div>
-
         <div class="flex-1 overflow-y-auto">
             <div class="p-6 md:p-8 bg-gradient-to-b from-blue-50 to-white border-b border-gray-200 text-center">
                 <p class="text-xl font-semibold text-gray-700 mb-2">Note finale :</p>
@@ -82,7 +87,6 @@
             </div>
             <div id="review-content" class="p-6 md:p-8 space-y-6 bg-gray-50"></div>
         </div>
-
         <div class="p-4 md:p-5 bg-white border-t border-gray-200 text-right shrink-0">
             <button onclick="closeModal()" class="px-8 py-3 bg-gray-900 text-white rounded-lg font-bold text-lg hover:bg-gray-800 shadow-md">Fermer la révision</button>
         </div>
@@ -102,8 +106,28 @@ const realProblems = [
   {id:1, img:101, title:"Thermomètre à criquets", text:"Au parc Algonquin, en multipliant la température par 7 et en soustrayant 30, on obtient le nombre de cris par minute. Un campeur entend 110 cris. Quelle est la température ?", ans:20, ctx:"température en degrés"},
   {id:2, img:102, title:"Startup de baskets", text:"Une startup paie 500$ d'équipement, puis chaque paire coûte 20$ à fabriquer. La facture est de 1300$. Combien de paires ?", ans:40, ctx:"nombre de paires"},
   {id:3, img:103, title:"Plongeur sous-marin", text:"La pression augmente de 10 kPa par mètre, en plus de la surface (100 kPa). Un plongeur ressent 350 kPa. À quelle profondeur est-il ?", ans:25, ctx:"profondeur en mètres"},
-  {id:11, img:140, title:"Passion Basketball", text:"Alexandre achète un ballon à 45$ et loue un demi-terrain à 15$ de l'heure. Si la facture totale est de 90$, pendant combien d'heures a-t-il joué ?", ans:3, ctx:"le nombre d'heures"},
-  {id:12, img:113, title:"Cabane à sucre", text:"Une réserve a déjà 200 litres de sève. On ajoute 15 litres par seau. Le volume atteint 500 litres. Combien de seaux ?", ans:20, ctx:"le nombre de seaux"}
+  {id:4, img:104, title:"Reforestation", text:"Des jeunes en Ontario commencent avec 50 arbres déjà en terre, et plantent 15 arbres par heure. Le compteur affiche 200 arbres. Combien d'heures ont-ils travaillé ?", ans:10, ctx:"nombre d'heures"},
+  {id:5, img:106, title:"Dosage pédiatrique", text:"À Ottawa, une dose : 5 mg par kg de l'enfant, plus une base de 10 mg. Si la dose préparée est de 135 mg, quelle est la masse de l'enfant ?", ans:25, ctx:"masse en kg"},
+  {id:6, img:107, title:"Véhicule Électrique", text:"Un VÉ part à 100%. Il perd 2% par kilomètre. En arrivant, il lui reste 40%. Combien de kilomètres a-t-il parcourus ?", ans:30, ctx:"distance en km"},
+  {id:7, img:108, title:"Croissance de bactéries", text:"Un échantillon contient 500 bactéries. La population augmente de 50 par heure. On compte 900 bactéries. Combien d'heures se sont écoulées ?", ans:8, ctx:"temps en heures"},
+  {id:8, img:109, title:"Effet de serre", text:"Une station mesure 400 ppm de CO2 au départ. Ce niveau augmente de 2.5 ppm par an. Un jour on lit 425 ppm. Combien d'années ont passé ?", ans:10, ctx:"nombre d'années"},
+  {id:9, img:110, title:"Bureau de change", text:"Frais fixe de 5$, plus 1.35$ CAD par USD acheté. Un client paie 140$ CAD. Combien de USD a-t-il reçus ?", ans:100, ctx:"montant en USD"},
+  {id:10, img:111, title:"Batterie de téléphone", text:"Un téléphone part à 100% et perd 5% par heure. Il reste 15%. Pendant combien d'heures le téléphone a-t-il été utilisé ?", ans:17, ctx:"temps d'utilisation en heures"},
+  {id:11, img:140, title:"Passion Basketball", text:"Un élève achète un ballon à 45$ et loue un demi-terrain à 15$ de l'heure. Si la facture totale est de 90$, pendant combien d'heures a-t-il joué ?", ans:3, ctx:"le nombre d'heures"},
+  {id:12, img:113, title:"Cabane à sucre", text:"Une réserve a déjà 200 litres de sève. On ajoute 15 litres par seau. Le volume atteint 500 litres. Combien de seaux ?", ans:20, ctx:"le nombre de seaux"},
+  {id:13, img:114, title:"Visite de la Tour CN", text:"Un groupe paie 20$ au total pour le guide, plus 40$ par personne pour monter. La facture totale est de 340$. Combien de personnes y a-t-il ?", ans:8, ctx:"le nombre de personnes"},
+  {id:14, img:116, title:"Fonte des neiges", text:"L'épaisseur de la neige est de 45 cm et fond de 2 cm par jour à cause du redoux. L'épaisseur actuelle n'est plus que de 15 cm. Depuis combien de jours fond-elle ?", ans:15, ctx:"le nombre de jours"},
+  {id:15, img:117, title:"Abonnement cinéma", text:"La carte de membre annuelle coûte 15$, et chaque film loué coûte 8$. Tu as dépensé 71$ cette année en tout. Combien de films as-tu loués ?", ans:7, ctx:"le nombre de films"},
+  {id:16, img:118, title:"Food truck de poutine", text:"Le propriétaire vend la poutine 9$, mais loue son emplacement 45$ par jour. Son profit quotidien a été de 180$. Combien de poutines a-t-il vendues ?", ans:25, ctx:"le nombre de poutines"},
+  {id:17, img:119, title:"Train VIA Rail", text:"Le billet inclut un frais de dossier de 25$, plus 0.15$ par kilomètre parcouru. Le passager a payé 85$. Quelle distance a-t-il parcourue ?", ans:400, ctx:"la distance en km"},
+  {id:18, img:120, title:"Atelier de vélo", text:"Le mécanicien charge 30$ pour le diagnostic, puis 40$ par heure. La facture s'élève à 150$. Combien d'heures a-t-il travaillé ?", ans:3, ctx:"le nombre d'heures"},
+  {id:19, img:121, title:"Forfait cellulaire", text:"Le forfait de base coûte 45$. Chaque Go de données supplémentaire coûte 10$. La facture est de 85$. Combien de Go supplémentaires ont été utilisés ?", ans:4, ctx:"les Go supplémentaires"},
+  {id:20, img:122, title:"Pizzeria locale", text:"Une pizza large nature coûte 14$, et chaque garniture extra coûte 2$. La facture finale est de 22$. Combien de garnitures ont été ajoutées ?", ans:4, ctx:"le nombre de garnitures"},
+  {id:21, img:123, title:"Plombier d'urgence", text:"Le plombier facture 60$ pour se déplacer, puis 50$ pour chaque heure. La facture totale s'élève à 210$. Combien d'heures est-il resté ?", ans:3, ctx:"le nombre d'heures"},
+  {id:22, img:124, title:"Parc d'attractions", text:"L'entrée coûte 50$, et chaque jeu à l'intérieur coûte 3$. Une personne a dépensé 86$ en tout. Combien de jeux a-t-elle faits ?", ans:12, ctx:"le nombre de jeux"},
+  {id:23, img:125, title:"Économies d'été", text:"Tu as 120$ et tu y ajoutes 15$ chaque semaine grâce à ton petit boulot. Tu as maintenant 300$. Depuis combien de semaines économises-tu ?", ans:12, ctx:"le nombre de semaines"},
+  {id:24, img:112, title:"Inventaire de la pharmacie", text:"Une pharmacie reçoit 300 boîtes de vitamines. Elle en vend 12 par jour. Il ne lui reste plus que 60 boîtes. Combien de jours se sont écoulés ?", ans:20, ctx:"le nombre de jours"},
+  {id:25, img:126, title:"La ferme bio", text:"Une ferme vend des paniers à 25$, moins 100$ pour le transport de la journée. Le profit est de 400$. Combien de paniers vendus ?", ans:20, ctx:"le nombre de paniers"}
 ];
 
 let currentExamData = { ex1: [], ex2: [], prob1: null, prob2: null };
@@ -139,6 +163,7 @@ function generateExam() {
     p2.id = "p2"; currentExamData.prob2 = p2;
     document.getElementById('prob2-container').innerHTML = buildProblemBlock(p2);
     
+    // On ne réinitialise pas le nom de l'élève s'il était déjà rempli
     document.documentElement.scrollTop = 0;
 }
 
@@ -189,9 +214,17 @@ function buildProblemBlock(prob) {
 }
 
 async function submitExam() {
+    const studentName = document.getElementById('student-name').value.trim();
+    if (!studentName) {
+        alert("Oups ! N'oublie pas d'inscrire ton prénom en haut de la feuille avant de soumettre.");
+        document.getElementById('student-name').focus();
+        return;
+    }
+
     document.getElementById('loading-overlay').classList.remove('hidden');
 
     const payload = {
+        studentName: studentName,
         exercices: [...currentExamData.ex1, ...currentExamData.ex2].map(eq => ({
             id: eq.id, question: eq.text, expectedAns: eq.ans,
             studentSteps: document.getElementById(`${eq.id}_step`).value,
