@@ -20,10 +20,7 @@
         }
         textarea:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
         
-        .math-input {
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
+        .math-input { font-family: 'Inter', sans-serif; transition: all 0.2s; }
         .math-input:focus { background-color: white; border-color: #2563eb; outline: none;}
 
         @media print {
@@ -98,7 +95,6 @@
 </div>
 
 <script>
-// --- BANQUES DE DONNÉES ---
 const geoProblems = [
   {id:1, img:127, title:"Périmètre du champ", text:"Un champ rectangulaire a une largeur de x mètres. Sa longueur mesure 5 mètres de plus, soit (x + 5). Si le périmètre total est de 42 mètres, quelle est la valeur de x ?", ans:8, ctx:"la largeur en mètres"},
   {id:2, img:128, title:"Triangle de signalisation", text:"Un panneau triangulaire isocèle a deux côtés égaux mesurant chacun 2x cm. La base mesure 10 cm. Le périmètre total du panneau est de 34 cm. Trouve la valeur de x.", ans:6, ctx:"la valeur de x en cm"},
@@ -117,24 +113,184 @@ const realProblems = [
   {id:7, img:108, title:"Croissance de bactéries", text:"Un échantillon contient 500 bactéries. La population augmente de 50 par heure. On compte 900 bactéries. Combien d'heures se sont écoulées ?", ans:8, ctx:"temps en heures"},
   {id:8, img:109, title:"Effet de serre", text:"Une station mesure 400 ppm de CO2 au départ. Ce niveau augmente de 2.5 ppm par an. Un jour on lit 425 ppm. Combien d'années ont passé ?", ans:10, ctx:"nombre d'années"},
   {id:9, img:110, title:"Bureau de change", text:"Frais fixe de 5$, plus 1.35$ CAD par USD acheté. Un client paie 140$ CAD. Combien de USD a-t-il reçus ?", ans:100, ctx:"montant en USD"},
-  {id:10, img:111, title:"Batterie de téléphone", text:"Un téléphone part à 100% et perd 5% par heure. Il reste 15%. Pendant combien d'heures le téléphone a-t-il été utilisé ?", ans:17, ctx:"temps d'utilisation en heures"}
+  {id:10, img:111, title:"Batterie de téléphone", text:"Un téléphone part à 100% et perd 5% par heure. Il reste 15%. Pendant combien d'heures le téléphone a-t-il été utilisé ?", ans:17, ctx:"temps d'utilisation en heures"},
+  {id:11, img:140, title:"Passion Basketball", text:"Alexandre achète un nouveau ballon de basketball à 45$ et loue un demi-terrain. La location coûte 15$ de l'heure. Si la facture totale est de 90$, pendant combien d'heures a-t-il joué ?", ans:3, ctx:"le nombre d'heures de location"},
+  {id:12, img:113, title:"Cabane à sucre", text:"Une réserve a déjà 200 litres de sève. On ajoute 15 litres par seau ramassé. Le volume total atteint 500 litres. Combien de seaux ont été vidés ?", ans:20, ctx:"le nombre de seaux"},
+  {id:13, img:114, title:"Visite de la Tour CN", text:"Un groupe paie 20$ au total pour le guide, plus 40$ par personne pour monter. La facture totale est de 340$. Combien de personnes y a-t-il ?", ans:8, ctx:"le nombre de personnes"},
+  {id:14, img:116, title:"Fonte des neiges", text:"L'épaisseur de la neige est de 45 cm et fond de 2 cm par jour à cause du redoux. L'épaisseur actuelle n'est plus que de 15 cm. Depuis combien de jours fond-elle ?", ans:15, ctx:"le nombre de jours"},
+  {id:15, img:117, title:"Abonnement cinéma", text:"La carte de membre annuelle coûte 15$, et chaque film loué coûte 8$. Tu as dépensé 71$ cette année en tout. Combien de films as-tu loués ?", ans:7, ctx:"le nombre de films"},
+  {id:16, img:118, title:"Food truck de poutine", text:"Le propriétaire vend la poutine 9$, mais loue son emplacement 45$ par jour. Son profit quotidien a été de 180$. Combien de poutines a-t-il vendues ?", ans:25, ctx:"le nombre de poutines"},
+  {id:17, img:119, title:"Train VIA Rail", text:"Le billet inclut un frais de dossier de 25$, plus 0.15$ par kilomètre parcouru. Le passager a payé 85$. Quelle distance a-t-il parcourue ?", ans:400, ctx:"la distance en km"},
+  {id:18, img:120, title:"Atelier de vélo", text:"Le mécanicien charge 30$ pour le diagnostic, puis 40$ par heure. La facture s'élève à 150$. Combien d'heures a-t-il travaillé ?", ans:3, ctx:"le nombre d'heures"},
+  {id:19, img:121, title:"Forfait cellulaire", text:"Le forfait de base coûte 45$. Chaque Go de données supplémentaire coûte 10$. La facture est de 85$. Combien de Go supplémentaires ont été utilisés ?", ans:4, ctx:"les Go supplémentaires"},
+  {id:20, img:122, title:"Pizzeria locale", text:"Une pizza large nature coûte 14$, et chaque garniture extra coûte 2$. La facture finale est de 22$. Combien de garnitures ont été ajoutées ?", ans:4, ctx:"le nombre de garnitures"},
+  {id:21, img:123, title:"Plombier d'urgence", text:"Le plombier facture 60$ pour se déplacer, puis 50$ pour chaque heure. La facture totale s'élève à 210$. Combien d'heures est-il resté ?", ans:3, ctx:"le nombre d'heures"},
+  {id:22, img:124, title:"Parc d'attractions", text:"L'entrée coûte 50$, et chaque jeu à l'intérieur coûte 3$. Une personne a dépensé 86$ en tout. Combien de jeux a-t-elle faits ?", ans:12, ctx:"le nombre de jeux"},
+  {id:23, img:125, title:"Économies d'été", text:"Tu as 120$ et tu y ajoutes 15$ chaque semaine grâce à ton petit boulot. Tu as maintenant 300$. Depuis combien de semaines économises-tu ?", ans:12, ctx:"le nombre de semaines"},
+  {id:24, img:112, title:"Inventaire de la pharmacie", text:"Une pharmacie reçoit 300 boîtes de vitamines. Elle en vend 12 par jour. Il ne lui reste plus que 60 boîtes. Combien de jours se sont écoulés ?", ans:20, ctx:"le nombre de jours"},
+  {id:25, img:126, title:"La ferme bio", text:"Une ferme vend des paniers à 25$, moins 100$ pour le transport de la journée. Le profit est de 400$. Combien de paniers vendus ?", ans:20, ctx:"le nombre de paniers"}
 ];
 
 let currentExamData = { ex1: [], ex2: [], prob1: null, prob2: null };
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 function generateExam() {
-    currentExamData = { ex1: [], ex2: [], prob1: null, prob2: null };
-    
-    // Ex 1
-    let htmlEx1 = "";
-    for(let i=1; i<=5; i++) {
-        const a = rand(2, 9), x = rand(2, 12), b = rand(1, 20);
-        const eq = { id: `ex1_${i}`, text: `${a}x + ${b} = ${a*x + b}`, ans: x };
-        currentExamData.ex1.push(eq);
-        htmlEx1 += buildEqBlock(eq, i, 'ex1');
-    }
-    document.getElementById('ex1-container').innerHTML = htmlEx1;
+    try {
+        currentExamData = { ex1: [], ex2: [], prob1: null, prob2: null };
+        
+        let htmlEx1 = "";
+        for(let i=1; i<=5; i++) {
+            const a = rand(2, 9), x = rand(2, 12), b = rand(1, 20);
+            const eq = { id: `ex1_${i}`, text: `${a}x + ${b} = ${a*x + b}`, ans: x };
+            currentExamData.ex1.push(eq);
+            htmlEx1 += buildEqBlock(eq, i);
+        }
+        document.getElementById('ex1-container').innerHTML = htmlEx1;
 
-    // Ex 2
-    let htmlEx2
+        let htmlEx2 = "";
+        for(let i=1; i<=5; i++) {
+            const x = rand(2, 10), a = rand(4, 9), c = rand(1, a-1), b = rand(1, 15);
+            const d = (a * x + b) - (c * x);
+            const eq = { id: `ex2_${i}`, text: `${a}x + ${b} = ${c}x + ${d}`, ans: x };
+            currentExamData.ex2.push(eq);
+            htmlEx2 += buildEqBlock(eq, i);
+        }
+        document.getElementById('ex2-container').innerHTML = htmlEx2;
+
+        const p1 = geoProblems[rand(0, geoProblems.length-1)];
+        p1.id = "p1"; currentExamData.prob1 = p1;
+        document.getElementById('prob1-container').innerHTML = buildProblemBlock(p1);
+
+        const p2 = realProblems[rand(0, realProblems.length-1)];
+        p2.id = "p2"; currentExamData.prob2 = p2;
+        document.getElementById('prob2-container').innerHTML = buildProblemBlock(p2);
+        
+        document.documentElement.scrollTop = 0;
+    } catch (error) {
+        console.error("Erreur de génération :", error);
+        document.getElementById('ex1-container').innerHTML = `<p class="text-red-500 font-bold p-4 bg-red-50 border border-red-200 rounded">Erreur lors de la génération. Le JavaScript est peut-être incomplet.</p>`;
+    }
+}
+
+function buildEqBlock(eq, index) {
+    return `
+    <div class="p-6 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
+        <p class="font-bold text-2xl mb-4 text-gray-800">${index}. Résous : <span class="text-blue-700 tracking-wider">${eq.text}</span></p>
+        <textarea id="${eq.id}_step" class="w-full h-32 border-2 border-gray-300 p-4 mb-4 rounded-lg text-gray-700" placeholder="Montre toutes tes opérations algébriques ici..."></textarea>
+        <div class="flex items-center justify-end bg-white p-3 rounded-lg border border-gray-200 shadow-inner w-max ml-auto">
+            <span class="mr-3 font-bold text-2xl text-gray-700">x = </span>
+            <input type="number" id="${eq.id}_ans" class="math-input border-b-4 border-blue-500 bg-blue-50 w-32 p-2 text-center text-2xl font-bold rounded-t-md text-blue-900" placeholder="?" />
+        </div>
+    </div>`;
+}
+
+function buildProblemBlock(prob) {
+    return `
+    <div class="p-8 border-2 border-blue-100 rounded-2xl bg-white shadow-md">
+        <h4 class="text-3xl font-extrabold mb-6 text-blue-900">${prob.title}</h4>
+        <img src="https://picsum.photos/id/${prob.img}/800/220" class="w-full h-56 object-cover rounded-xl mb-6 shadow-sm border border-gray-200" alt="Illustration" />
+        <p class="text-xl mb-8 leading-relaxed text-gray-700 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">${prob.text}</p>
+        
+        <div class="space-y-6">
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <p class="font-bold text-lg mb-2 text-gray-800">1. Définis la variable (ex: "Soit x ...")</p>
+                <textarea id="${prob.id}_q1" class="w-full border-2 border-gray-300 p-3 rounded-lg"></textarea>
+            </div>
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <p class="font-bold text-lg mb-2 text-gray-800">2. Modélise l'équation</p>
+                <textarea id="${prob.id}_q2" class="w-full border-2 border-gray-300 p-3 rounded-lg"></textarea>
+            </div>
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <p class="font-bold text-lg mb-2 text-gray-800">3. Résous (montre les étapes d'isolation)</p>
+                <textarea id="${prob.id}_q3" class="w-full h-32 border-2 border-gray-300 p-3 rounded-lg"></textarea>
+            </div>
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <p class="font-bold text-lg mb-2 text-gray-800">4. Vérification par substitution</p>
+                <textarea id="${prob.id}_q4" class="w-full border-2 border-gray-300 p-3 rounded-lg"></textarea>
+            </div>
+            <div class="bg-white p-6 rounded-xl border-2 border-green-100 shadow-sm">
+                <p class="font-bold text-xl mb-3 text-green-800">5. Conclusion finale</p>
+                <div class="flex flex-col md:flex-row gap-4 items-end">
+                    <textarea id="${prob.id}_q5" class="flex-grow border-2 border-gray-300 p-3 rounded-lg w-full" placeholder="Rédige ta phrase de réponse finale ici..."></textarea>
+                    <div class="flex items-center bg-green-50 p-3 rounded-xl border-2 border-green-200 min-w-max">
+                        <span class="mr-3 font-bold text-lg text-green-900 whitespace-nowrap">Réponse numérique :</span>
+                        <input type="number" id="${prob.id}_ans" class="math-input border-b-4 border-green-500 bg-white w-28 p-2 text-center text-2xl font-bold rounded-t-md text-green-900" placeholder="ex: 12" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+async function submitExam() {
+    document.getElementById('loading-overlay').classList.remove('hidden');
+
+    const payload = {
+        exercices: [...currentExamData.ex1, ...currentExamData.ex2].map(eq => ({
+            id: eq.id,
+            question: eq.text,
+            expectedAns: eq.ans,
+            studentSteps: document.getElementById(`${eq.id}_step`).value,
+            studentAns: document.getElementById(`${eq.id}_ans`).value
+        })),
+        problemes: [currentExamData.prob1, currentExamData.prob2].map(p => ({
+            id: p.id,
+            context: p.text,
+            expectedAns: p.ans,
+            studentQ1_Variable: document.getElementById(`${p.id}_q1`).value,
+            studentQ2_Equation: document.getElementById(`${p.id}_q2`).value,
+            studentQ3_Steps: document.getElementById(`${p.id}_q3`).value,
+            studentQ4_Verification: document.getElementById(`${p.id}_q4`).value,
+            studentQ5_Conclusion: document.getElementById(`${p.id}_q5`).value,
+            studentFinalNum: document.getElementById(`${p.id}_ans`).value
+        }))
+    };
+
+    try {
+        const response = await fetch('/api/grade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("Erreur serveur");
+        
+        const result = await response.json();
+        afficherResultats(result);
+    } catch (err) {
+        alert("Erreur de connexion avec l'IA. Assure-toi que le serveur Node.js est lancé avec la bonne clé API.");
+        document.getElementById('loading-overlay').classList.add('hidden');
+    }
+}
+
+function afficherResultats(data) {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('final-score').innerText = `${data.totalScore}/100`;
+    document.getElementById('global-feedback').innerText = data.globalFeedback;
+    
+    let html = "";
+    data.questionsGrading.forEach(q => {
+        let color = q.score === q.maxScore ? 'bg-green-50 border-green-200' : (q.score > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200');
+        let titleColor = q.score === q.maxScore ? 'text-green-800' : (q.score > 0 ? 'text-yellow-800' : 'text-red-800');
+        
+        html += `
+        <div class="p-6 border-2 rounded-xl ${color} shadow-sm">
+            <p class="font-bold text-xl mb-3 ${titleColor} flex justify-between items-center">
+                <span>Correction - Question ${q.id}</span>
+                <span class="bg-white px-3 py-1 rounded-lg border border-gray-200 shadow-sm text-gray-800">${q.score} / ${q.maxScore} pts</span>
+            </p>
+            <p class="text-gray-800 text-lg leading-relaxed bg-white/60 p-4 rounded-lg">${q.feedback}</p>
+        </div>`;
+    });
+    
+    document.getElementById('review-content').innerHTML = html;
+    document.getElementById('review-modal').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('review-modal').classList.add('hidden'); }
+
+// Sécurité pour forcer le chargement une fois le DOM prêt
+document.addEventListener("DOMContentLoaded", generateExam);
+</script>
+</body>
+</html>
